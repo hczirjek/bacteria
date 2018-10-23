@@ -4,8 +4,8 @@ window.onload = function() {
   var drawOptions = {};
 var config = {
   view: {
-	width: 400.0,
-	height: 400.0
+	width: 1024.0,
+	height: 768.0
   }
 };
 
@@ -42,13 +42,12 @@ var colors = {
   //console.log("asd",config.view.width);
   ctx.canvas.height=config.view.height;
  
+  var nutrition = [];
   var bacterium = [];
   //draw initial bacteria
   for(var i=0;i<init.nrBacteria;i++){
 	var xRand = Math.floor(Math.random() * canvas.width);
 	var yRand = Math.floor(Math.random() * canvas.height);
-	var nutritionX = Math.floor(Math.random() * canvas.width);
-	var nutritionY = Math.floor(Math.random() * canvas.height);
 	//var b = null;
 	var b = {
       	x : xRand,
@@ -60,7 +59,7 @@ var colors = {
       	p1 : Math.random(),
       	p2: Math.random(),
       	p3: Math.random(),
-      	p4: Math.random(),
+      	p4: Math.random(), //suma probabilitatilor sa fie egala cu 1
      	 
     	};
 
@@ -72,9 +71,22 @@ var colors = {
 	bacterium.push(b);
 
 	drawBacteria(ctx,i,b.x,b.y);
-	drawNutrition(ctx,nutritionX,nutritionY);
 
 }
+	
+	for(var a=0; a<50; a++){
+		var nutritionX = Math.floor(Math.random() * canvas.width);
+		var nutritionY = Math.floor(Math.random() * canvas.height);
+	
+		var n = {
+			x: nutritionX,
+			y: nutritionY,
+			val: Math.random() * 5
+		}
+		nutrition.push(n);
+		
+		drawNutrition(ctx,n.x,n.y);
+	}
 
 var x1 = document.getElementById("step-button");
 x1.addEventListener('click', function(){
@@ -104,7 +116,7 @@ function drawBacteria(ctx,ind,x,y)
   ctx.strokeStyle="black";
   //ctx.font = "5px Arial";
   //ctx.fillText("bact" + ind,x-7.5,y-2);
-  ctx.rect(x,y,1,1);
+  ctx.rect(x,y,3,3);
   ctx.stroke();
 }
 
@@ -139,14 +151,18 @@ function redrawBacteria(){
   }
 
   drawBacteria(ctx,i,bacterium[i].x,bacterium[i].y);
-  }
+}
+  
+	for(a=0;a<50;a++){
+		drawNutrition(ctx,nutrition[a].x,nutrition[a].y);
+	}
   
 }
 
 function drawNutrition(ctx, x, y){
   ctx.beginPath();
   ctx.strokeStyle="green";
-  ctx.rect(x,y,1,1);
+  ctx.rect(x,y,3,3);
   ctx.stroke();
 }
  
