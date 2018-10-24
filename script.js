@@ -33,6 +33,7 @@ window.onload = function () {
 
   var nutrition = [];
   var bacterium = [];
+  var bacteriumInit = [];
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
     var xRand = Math.floor(Math.random() * canvas.width);
@@ -44,11 +45,13 @@ window.onload = function () {
       x: xRand,
       y: yRand,
       d: [], //where to go
-      energy: 128,
+      //energy: 128,
+      energy: Math.floor(Math.random() * 255 + 1 ),
       p1: probabilities[0],
       p2: probabilities[1],
       p3: probabilities[2],
-      p4: probabilities[3]
+      p4: probabilities[3],
+      nr: i
     };
 
     b.d.push(b.p1);
@@ -59,6 +62,13 @@ window.onload = function () {
 
     drawBacteria(ctx, i, b.x, b.y);
   }
+
+  bacteriumInit = new Array();
+  for(var x=0;x<bacterium.length;x++){
+    bacteriumInit[x] = bacterium[x];
+    bacteriumInit[x].initialEnergy = bacterium[x].energy;
+  }
+  //console.log(bacteriumInit);
 
   for (var a = 0; a < 50; a++) {
     var nutritionX = Math.floor(Math.random() * canvas.width);
@@ -89,7 +99,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 50);
+      interval = setInterval(redrawBacteria, 10);
     } else {
       clearInterval(interval);
       interval = null;
@@ -100,8 +110,8 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     var color =
       //ctx.strokeStyle = "black";
-      ctx.strokeStyle = 'rgb(' + bacterium[ind].energy + ', ' +
-      bacterium[ind].energy + ',' + bacterium[ind].energy + ')';
+      ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
+      (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
     ctx.rect(x, y, 3, 3);
@@ -141,25 +151,30 @@ window.onload = function () {
         if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
           bacterium[i].x += 0;
           bacterium[i].y -= 1;
+          bacterium[i].energy--;
         } else {
           //console.log("limit exceeded at bacteria:"+i);
           //down
           bacterium[i].x += 0;
           bacterium[i].y += 1;
+          bacterium[i].energy--;
         }
       }
       if (directionId[i] === 2) {
         //right
         //console.log("right");
-        if (bacterium[i].x < (canvas.width -3) && bacterium[i].x > 0) {
+        if (bacterium[i].x < (canvas.width - 3) && bacterium[i].x > 0) {
           bacterium[i].x += 1;
           bacterium[i].y += 0;
+          bacterium[i].energy--;
         } else {
           //console.log("limit exceeded at bacteria:"+i);
           //left
           bacterium[i].x -= 1;
           bacterium[i].y += 0;
+          bacterium[i].energy--;
         }
+
       }
       if (directionId[i] === 3) {
         //down
@@ -167,11 +182,13 @@ window.onload = function () {
         if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
           bacterium[i].x += 0;
           bacterium[i].y += 1;
+          bacterium[i].energy--;
         } else {
           //console.log("limit exceeded at bacteria:"+i);
           //up
           bacterium[i].x += 0;
           bacterium[i].y -= 1;
+          bacterium[i].energy--;
         }
       }
       if (directionId[i] === 4) {
@@ -180,15 +197,29 @@ window.onload = function () {
         if (bacterium[i].x < (canvas.width - 3) && bacterium[i].x > 0) {
           bacterium[i].x -= 1;
           bacterium[i].y += 0;
+          bacterium[i].energy--;
         } else {
           //console.log("limit exceeded at bacteria:"+i);
           //right
           bacterium[i].x += 1;
           bacterium[i].y += 0;
+          bacterium[i].energy--;
         }
       }
 
       drawBacteria(ctx, i, bacterium[i].x, bacterium[i].y);
+
+      if (bacterium[i].energy === 0) {
+        //clear bacteria
+          bacterium.splice(i, 1);
+          //console.log("removed, array:", bacterium);
+      }
+
+      if(bacterium.length === 1 && bacterium[0].energy===1){
+        console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
+        x1.click();
+      }
+
     }
 
     for (a = 0; a < 50; a++) {
