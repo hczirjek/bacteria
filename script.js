@@ -108,7 +108,8 @@ window.onload = function () {
   });
 
   function drawBacteria(ctx, ind, x, y) {
-    var color =
+    ctx.beginPath();
+    //var color =
       //ctx.strokeStyle = "black";
       ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
       (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
