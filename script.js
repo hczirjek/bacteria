@@ -111,7 +111,7 @@ window.onload = function () {
   }
 
   function redrawBacteria() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+   // ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.globalAlpha = 1;
 
