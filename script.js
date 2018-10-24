@@ -99,7 +99,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 150);
+      interval = setInterval(redrawBacteria, 100);
     } else {
       clearInterval(interval);
       interval = null;
