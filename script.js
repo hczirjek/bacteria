@@ -89,7 +89,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 100);
+      interval = setInterval(redrawBacteria, 50);
     } else {
       clearInterval(interval);
       interval = null;
@@ -98,10 +98,10 @@ window.onload = function () {
   });
 
   function drawBacteria(ctx, ind, x, y) {
-    var color = 
-    //ctx.strokeStyle = "black";
-    ctx.strokeStyle = 'rgb(' + bacterium[ind].energy + ', ' +
-    bacterium[ind].energy + ',' + bacterium[ind].energy + ')';
+    var color =
+      //ctx.strokeStyle = "black";
+      ctx.strokeStyle = 'rgb(' + bacterium[ind].energy + ', ' +
+      bacterium[ind].energy + ',' + bacterium[ind].energy + ')';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
     ctx.rect(x, y, 3, 3);
@@ -109,7 +109,7 @@ window.onload = function () {
   }
 
   function redrawBacteria() {
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.globalAlpha = 1;
 
@@ -122,8 +122,8 @@ window.onload = function () {
 
       bacterium[i].d.sort();
       var j = 0;
-	  
-	  //console.log("dirProb: ", dirProbability);
+
+      //console.log("dirProb: ", dirProbability);
 
       if (bacterium[i].d[0] < dirProbability) {
         while (nr < dirProbability) {
@@ -137,27 +137,55 @@ window.onload = function () {
 
       if (directionId[i] === 1) {
         //up
-		//console.log("up");
-        bacterium[i].x += 0;
-        bacterium[i].y -= 1;
+        //console.log("up");
+        if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
+          bacterium[i].x += 0;
+          bacterium[i].y -= 1;
+        } else {
+          //console.log("limit exceeded at bacteria:"+i);
+          //down
+          bacterium[i].x += 0;
+          bacterium[i].y += 1;
+        }
       }
       if (directionId[i] === 2) {
         //right
-		//console.log("right");
-        bacterium[i].x += 1;
-        bacterium[i].y += 0;
+        //console.log("right");
+        if (bacterium[i].x < (canvas.width -3) && bacterium[i].x > 0) {
+          bacterium[i].x += 1;
+          bacterium[i].y += 0;
+        } else {
+          //console.log("limit exceeded at bacteria:"+i);
+          //left
+          bacterium[i].x -= 1;
+          bacterium[i].y += 0;
+        }
       }
       if (directionId[i] === 3) {
         //down
-		//console.log("down");
-        bacterium[i].x += 0;
-        bacterium[i].y += 1;
+        //console.log("down");
+        if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
+          bacterium[i].x += 0;
+          bacterium[i].y += 1;
+        } else {
+          //console.log("limit exceeded at bacteria:"+i);
+          //up
+          bacterium[i].x += 0;
+          bacterium[i].y -= 1;
+        }
       }
       if (directionId[i] === 4) {
         //left
-		//console.log("left");
-        bacterium[i].x -= 1;
-        bacterium[i].y += 0;
+        //console.log("left");
+        if (bacterium[i].x < (canvas.width - 3) && bacterium[i].x > 0) {
+          bacterium[i].x -= 1;
+          bacterium[i].y += 0;
+        } else {
+          //console.log("limit exceeded at bacteria:"+i);
+          //right
+          bacterium[i].x += 1;
+          bacterium[i].y += 0;
+        }
       }
 
       drawBacteria(ctx, i, bacterium[i].x, bacterium[i].y);
