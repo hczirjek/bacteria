@@ -132,7 +132,7 @@ window.onload = function () {
         }
         directionId[i] = j;
       } else {
-        directionId[i] = 1;
+        directionId[i] = Math.floor(Math.random()*4 + 1);
       }
 
       if (directionId[i] === 1) {
