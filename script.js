@@ -117,7 +117,7 @@ window.onload = function () {
 
       //var max = Math.max(...bacterium[i].d);
 
-      var dirProbability = Math.floor(Math.random() * 1000 + 1);
+      var dirProbability = Math.floor(Math.random() * 900 + 1);
       var nr = 0, directionId = [];
 
       bacterium[i].d.sort();
@@ -177,7 +177,7 @@ window.onload = function () {
   }
 
   function roll() {
-    return Math.floor(Math.random() * 1000 + 1);
+    return Math.floor(Math.random() * 500 + 1);
   }
 
   function chooseNumbers() {
