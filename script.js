@@ -8,11 +8,12 @@ window.onload = function () {
   };
 
   var init = {
-    nrBacteria: 32
+    nrBacteria: 32,
+	nrNutrition: 3000
   }
   var probabilities = [];
 
-  var bacteria = {
+  /*var bacteria = {
     x: 0,
     y: 0,
     //where to go
@@ -22,43 +23,56 @@ window.onload = function () {
     p1: 0,
     p2: 0,
     p3: 0,
-    p4: 0
-  }
+    p4: 0,
+	sum : 0,
+	speed: 0
+  }*/
 
   var ctx;
   var canvas = document.getElementById('viewport');
   ctx = canvas.getContext('2d');
   ctx.canvas.width = config.view.width;
   ctx.canvas.height = config.view.height;
+  //ctx.fillStyle = 'rgb(90,40,40)';
+  ctx.fillStyle = 'coral';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   var nutrition = [];
   var bacterium = [];
   var bacteriumInit = [];
+  var directions =[{x:0,y:-1},
+					{x:1,y:0},
+					{x:0,y:1},
+					{x:-1,y:0}
+					];
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
     var xRand = Math.floor(Math.random() * canvas.width);
     var yRand = Math.floor(Math.random() * canvas.height);
     //var b = null;
-    probabilities = chooseNumbers();
+    //probabilities = chooseNumbers();
 
     var b = {
       x: xRand,
       y: yRand,
-      d: [], //where to go
+      p: [], // probabilities where to go
       //energy: 128,
       energy: Math.floor(Math.random() * 255 + 1 ),
-      p1: probabilities[0],
-      p2: probabilities[1],
-      p3: probabilities[2],
-      p4: probabilities[3],
+	  p1: Math.random(),
+	  p2: Math.random(),
+	  p3: Math.random(),
+	  p4: Math.random(),
       nr: i
     };
 
-    b.d.push(b.p1);
-    b.d.push(b.p2);
-    b.d.push(b.p3);
-    b.d.push(b.p4);
+    b.p.push(b.p1);
+    b.p.push(b.p2);
+    b.p.push(b.p3);
+    b.p.push(b.p4);
+	b.sum = b.p1 + b.p2 + b.p3 + b.p4;
     bacterium.push(b);
+	
+	//console.log("sum:",bact.sum);
 
     drawBacteria(ctx, i, b.x, b.y);
   }
@@ -70,7 +84,7 @@ window.onload = function () {
   }
   //console.log(bacteriumInit);
 
-  for (var a = 0; a < 50; a++) {
+  for (var a = 0; a < init.nrNutrition; a++) {
     var nutritionX = Math.floor(Math.random() * canvas.width);
     var nutritionY = Math.floor(Math.random() * canvas.height);
 
@@ -99,7 +113,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 100);
+      interval = setInterval(redrawBacteria, 50);
     } else {
       clearInterval(interval);
       interval = null;
@@ -120,97 +134,59 @@ window.onload = function () {
   }
 
   function redrawBacteria() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+	//ctx.fillStyle = 'coral';
+	//ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
     ctx.beginPath();
     ctx.globalAlpha = 1;
+	
+	
+	var consumedEnergy = 0.5;
+	
 
     for (var i = 0; i < bacterium.length; i++) {
+		var bact=bacterium[i];
+      //var max = Math.max(...bact.d);
 
-      //var max = Math.max(...bacterium[i].d);
-
-      var dirProbability = Math.floor(Math.random() * 900 + 1);
+      //var dirProbability = Math.floor(Math.random() * 1000 + 1);
+	  var dirProbability = Math.random() * bact.sum;
+	  //console.log("dirProb:",dirProbability);
       var nr = 0, directionId = [];
 
-      bacterium[i].d.sort();
-      var j = 0;
-
-      //console.log("dirProb: ", dirProbability);
-
-      if (bacterium[i].d[0] < dirProbability) {
-        while (nr < dirProbability) {
-          nr += bacterium[i].d[j];
-          j++;
-        }
-        directionId[i] = j;
-      } else {
-        directionId[i] = 1;
-      }
-
-      if (directionId[i] === 1) {
-        //up
-        //console.log("up");
-        if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
-          bacterium[i].x += 0;
-          bacterium[i].y -= 1;
-          bacterium[i].energy--;
+      //bact.d.sort();
+      //var j = 0;
+	  
+	  var v = 0;
+	  for(var j=0;j<=3;j++)
+	  {
+		  v+=bact.p[j];
+		  if(dirProbability<=v)
+		  {
+			  directionId[i] = j;
+			  //console.log("dirId:", directionId[i]);
+			  break;
+		  }
+	  }
+	  
+	   //if ((bact.y < (canvas.height - 3)) && bact.y > 0) {
+		  var dir =directions[directionId[i]];
+		  if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
+          bact.x += dir.x;
+          bact.y += dir.y;
+          //bact.energy--;
+		  bact.energy -= consumedEnergy;
         } else {
-          //console.log("limit exceeded at bacteria:"+i);
-          //down
-          bacterium[i].x += 0;
-          bacterium[i].y += 1;
-          bacterium[i].energy--;
-        }
-      }
-      if (directionId[i] === 2) {
-        //right
-        //console.log("right");
-        if (bacterium[i].x < (canvas.width - 3) && bacterium[i].x > 0) {
-          bacterium[i].x += 1;
-          bacterium[i].y += 0;
-          bacterium[i].energy--;
-        } else {
-          //console.log("limit exceeded at bacteria:"+i);
-          //left
-          bacterium[i].x -= 1;
-          bacterium[i].y += 0;
-          bacterium[i].energy--;
-        }
+			bact.energy -= consumedEnergy;
+		}
 
-      }
-      if (directionId[i] === 3) {
-        //down
-        //console.log("down");
-        if (bacterium[i].y < (canvas.height - 3) && bacterium[i].y > 0) {
-          bacterium[i].x += 0;
-          bacterium[i].y += 1;
-          bacterium[i].energy--;
-        } else {
-          //console.log("limit exceeded at bacteria:"+i);
-          //up
-          bacterium[i].x += 0;
-          bacterium[i].y -= 1;
-          bacterium[i].energy--;
-        }
-      }
-      if (directionId[i] === 4) {
-        //left
-        //console.log("left");
-        if (bacterium[i].x < (canvas.width - 3) && bacterium[i].x > 0) {
-          bacterium[i].x -= 1;
-          bacterium[i].y += 0;
-          bacterium[i].energy--;
-        } else {
-          //console.log("limit exceeded at bacteria:"+i);
-          //right
-          bacterium[i].x += 1;
-          bacterium[i].y += 0;
-          bacterium[i].energy--;
-        }
-      }
+      drawBacteria(ctx, i, bact.x, bact.y);
+	  
+	  for(var z=0;z<nutrition.length;z++){
+			nutrition[z] = checkForCollision(bact,nutrition[z]);
+		}
 
-      drawBacteria(ctx, i, bacterium[i].x, bacterium[i].y);
-
-      if (bacterium[i].energy === 0) {
+      if (bact.energy === 0) {
         //clear bacteria
           bacterium.splice(i, 1);
           //console.log("removed, array:", bacterium);
@@ -218,13 +194,20 @@ window.onload = function () {
 
       if(bacterium.length === 1 && bacterium[0].energy===1){
         console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
+		ctx.beginPath();
+		//ctx.globalAlpha = 1;
+		ctx.fillStyle = "red";
+		ctx.font = "15px Arial";
+		ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
         x1.click();
       }
 
     }
 
-    for (a = 0; a < 50; a++) {
-      drawNutrition(ctx, nutrition[a].x, nutrition[a].y);
+    for (a = 0; a < init.nrNutrition; a++) {
+		if(nutrition[a].val != 0){
+			drawNutrition(ctx, nutrition[a].x, nutrition[a].y);
+		}
     }
 
   }
@@ -232,7 +215,7 @@ window.onload = function () {
   function drawNutrition(ctx, x, y) {
     ctx.beginPath();
     ctx.strokeStyle = "green";
-    ctx.rect(x, y, 3, 3);
+    ctx.rect(x, y, 1, 1);
     ctx.stroke();
   }
 
@@ -243,14 +226,24 @@ window.onload = function () {
   function chooseNumbers() {
     var a = 0, b = 0, c = 0, d = 0;
 
-    while (a + b + c + d !== 1000) {
+    //while (a + b + c + d !== 1000) {
       a = roll();
       b = roll();
       c = roll();
-      d = roll();
-    }
+      d = 1000 - (a+b+c);
+    //}
     return [a, b, c, d];
   }
+  
+	function checkForCollision(bact,nutr){
+		
+			if(bact.x == nutr.x && bact.y == nutr.y){
+				bact.energy += nutr.val;
+				//console.log("bact" + bact.nr + "eats " + nutrition.val + "kcal");
+				nutr.val = 0;
+			}
+		return nutr;
+	}
 
 
 }
