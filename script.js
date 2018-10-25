@@ -9,24 +9,9 @@ window.onload = function () {
 
   var init = {
     nrBacteria: 32,
-	nrNutrition: 3000
+	nrNutrition: 5000
   }
   var probabilities = [];
-
-  /*var bacteria = {
-    x: 0,
-    y: 0,
-    //where to go
-    d: [], //direction (4 directions)
-    energy: 128,
-    probabilities: [],
-    p1: 0,
-    p2: 0,
-    p3: 0,
-    p4: 0,
-	sum : 0,
-	speed: 0
-  }*/
 
   var ctx;
   var canvas = document.getElementById('viewport');
@@ -34,35 +19,37 @@ window.onload = function () {
   ctx.canvas.width = config.view.width;
   ctx.canvas.height = config.view.height;
   //ctx.fillStyle = 'rgb(90,40,40)';
-  ctx.fillStyle = 'coral';
+  ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  var consumedEnergy = 0.05;
+  var divisionEnergy = 100;
   var nutrition = [];
   var bacterium = [];
   var bacteriumInit = [];
-  var directions =[{x:0,y:-1},
+  var directions =[	{x:0,y:-1},
 					{x:1,y:0},
 					{x:0,y:1},
-					{x:-1,y:0}
-					];
+					{x:-1,y:0} ];
+					
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
     var xRand = Math.floor(Math.random() * canvas.width);
     var yRand = Math.floor(Math.random() * canvas.height);
-    //var b = null;
-    //probabilities = chooseNumbers();
 
     var b = {
-      x: xRand,
-      y: yRand,
-      p: [], // probabilities where to go
-      //energy: 128,
-      energy: Math.floor(Math.random() * 255 + 1 ),
-	  p1: Math.random(),
-	  p2: Math.random(),
-	  p3: Math.random(),
-	  p4: Math.random(),
-      nr: i
+      x: i==0? canvas.width/2 : xRand,
+      y: i==0? canvas.height/2 : yRand,
+      p: [], // probabilities in which direction to go
+      energy: divisionEnergy - 10,
+      //energy: Math.floor(Math.random() * 255 + 1 ),
+	  p1: i==0? 0.8 : Math.random(),
+	  p2: i==0? 0.8 : Math.random(),
+	  p3: i==0? 0.8 : Math.random(),
+	  p4: i==0? 0 : Math.random(),
+      nr: i,
+	  age: 0,
+	  collectedFood: 0
     };
 
     b.p.push(b.p1);
@@ -71,8 +58,6 @@ window.onload = function () {
     b.p.push(b.p4);
 	b.sum = b.p1 + b.p2 + b.p3 + b.p4;
     bacterium.push(b);
-	
-	//console.log("sum:",bact.sum);
 
     drawBacteria(ctx, i, b.x, b.y);
   }
@@ -82,7 +67,6 @@ window.onload = function () {
     bacteriumInit[x] = bacterium[x];
     bacteriumInit[x].initialEnergy = bacterium[x].energy;
   }
-  //console.log(bacteriumInit);
 
   for (var a = 0; a < init.nrNutrition; a++) {
     var nutritionX = Math.floor(Math.random() * canvas.width);
@@ -91,7 +75,8 @@ window.onload = function () {
     var n = {
       x: nutritionX,
       y: nutritionY,
-      val: Math.random() * 5
+      //val: Math.random() * 5
+	  val: 1
     }
     nutrition.push(n);
 
@@ -113,7 +98,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 50);
+      interval = setInterval(redrawBacteria, 0);
     } else {
       clearInterval(interval);
       interval = null;
@@ -123,61 +108,85 @@ window.onload = function () {
 
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
-    //var color =
-      //ctx.strokeStyle = "black";
-      ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
-      (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
+    //ctx.strokeStyle = "black";
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',0, 0)';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
-    ctx.rect(x, y, 3, 3);
+	
+	ctx.fillStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
+    (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
+	ctx.rect(x,y,3,3);
+	ctx.fillRect(x, y, 3, 3);
     ctx.stroke();
+	/*ctx.beginPath();
+	ctx.strokeStyle = 'black';
+    ctx.rect(x-2, y-2, 4, 4);
+    ctx.stroke();*/
   }
 
+  var time = 0;
+  
   function redrawBacteria() {
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
-	//ctx.fillStyle = 'coral';
-	//ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = 'rgb(234,208,168)';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
     ctx.beginPath();
     ctx.globalAlpha = 1;
 	
-	
-	var consumedEnergy = 0.5;
-	
-
+	 time++;
     for (var i = 0; i < bacterium.length; i++) {
-		var bact=bacterium[i];
-      //var max = Math.max(...bact.d);
+	  
+	  var bact=bacterium[i];
+	  
+	 
+	  
+	  
+	  //console.log("length:",bacterium.length);
+	  
+	  if (bact.energy <= 0) {
+        //clear bacteria
+		  bact.age = time;
+		  console.log("bact with nr " + bact.nr + " dies at age " + bact.age); 
+          bacterium.splice(i, 1);
+		   if(bacterium.length === 1){
+				console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
+				ctx.beginPath();
+				ctx.fillStyle = "yellow";
+				ctx.font = "15px Arial";
+				ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
+				autoButton.click();
+      }
+		  continue;
+          //console.log("removed, array:", bacterium);
+      }
 
-      //var dirProbability = Math.floor(Math.random() * 1000 + 1);
 	  var dirProbability = Math.random() * bact.sum;
-	  //console.log("dirProb:",dirProbability);
       var nr = 0, directionId = [];
-
-      //bact.d.sort();
-      //var j = 0;
 	  
 	  var v = 0;
 	  for(var j=0;j<=3;j++)
 	  {
-		  v+=bact.p[j];
+		  v += bact.p[j];
 		  if(dirProbability<=v)
 		  {
 			  directionId[i] = j;
-			  //console.log("dirId:", directionId[i]);
 			  break;
 		  }
 	  }
 	  
-	   //if ((bact.y < (canvas.height - 3)) && bact.y > 0) {
-		  var dir =directions[directionId[i]];
+		  var dir = directions[directionId[i]];
 		  if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
-          bact.x += dir.x;
-          bact.y += dir.y;
-          //bact.energy--;
-		  bact.energy -= consumedEnergy;
+			  bact.x += dir.x;
+			  bact.y += dir.y;
+			  bact.energy -= consumedEnergy;
         } else {
-			bact.energy -= consumedEnergy;
+			  bact.energy -= consumedEnergy;
+		}
+		
+		var newBact = divide( bact );
+		if(newBact != null){
+		  //console.log("new bact:", newBact);
 		}
 
       drawBacteria(ctx, i, bact.x, bact.y);
@@ -186,35 +195,22 @@ window.onload = function () {
 			nutrition[z] = checkForCollision(bact,nutrition[z]);
 		}
 
-      if (bact.energy === 0) {
-        //clear bacteria
-          bacterium.splice(i, 1);
-          //console.log("removed, array:", bacterium);
-      }
-
-      if(bacterium.length === 1 && bacterium[0].energy===1){
-        console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
-		ctx.beginPath();
-		//ctx.globalAlpha = 1;
-		ctx.fillStyle = "red";
-		ctx.font = "15px Arial";
-		ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
-        x1.click();
-      }
-
+     
+	  
+	  
     }
 
     for (a = 0; a < init.nrNutrition; a++) {
-		if(nutrition[a].val != 0){
-			drawNutrition(ctx, nutrition[a].x, nutrition[a].y);
-		}
+		//if(nutrition[a].val != 0){
+			drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val);
+		//}
     }
-
   }
 
-  function drawNutrition(ctx, x, y) {
+  function drawNutrition(ctx, x, y, v) {
     ctx.beginPath();
-    ctx.strokeStyle = "green";
+
+    ctx.strokeStyle =v!=0?"green":"red";
     ctx.rect(x, y, 1, 1);
     ctx.stroke();
   }
@@ -237,12 +233,47 @@ window.onload = function () {
   
 	function checkForCollision(bact,nutr){
 		
-			if(bact.x == nutr.x && bact.y == nutr.y){
+			if(Math.abs(bact.x - nutr.x)<=2 && Math.abs(bact.y - nutr.y)<=2){
 				bact.energy += nutr.val;
 				//console.log("bact" + bact.nr + "eats " + nutrition.val + "kcal");
 				nutr.val = 0;
 			}
 		return nutr;
+	}
+	
+	function divide(bact){
+		
+		if(bact.energy >= divisionEnergy) {
+			
+			console.log("bacteria with nr " + bact.nr + " divided");
+			var b = {
+			  x: bact.x,
+			  y: bact.y,
+			  p: [], // probabilities in which direction to go
+			  //energy: 128,
+			  energy: bact.energy / 2,
+			  p1: Math.random(),
+			  p2: Math.random(),
+			  p3: Math.random(),
+			  p4: Math.random(),
+			  nr: bacterium.length,
+			  age: 0,
+			  collectedFood: 0
+			};
+
+			b.p.push(b.p1);
+			b.p.push(b.p2);
+			b.p.push(b.p3);
+			b.p.push(b.p4);
+			b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+			bacterium.push(b);
+			
+			//parent bact energy reset
+			bacterium[bact.nr].energy /= 2;
+			
+			//console.log("New bact: " + bacterium[bacterium.length] );
+			return b;
+		}
 	}
 
 
