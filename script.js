@@ -23,7 +23,7 @@ window.onload = function () {
   ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  var consumedEnergy = 0.5;
+  var consumedEnergy = 0.05;
   var initialEnergy = 128;
   var nutrition = [];
   var bacterium = [];
@@ -111,18 +111,20 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',' +
-             (255 - bacterium[ind].energy) + ', ' + (255 - bacterium[ind].energy) + ')';
+
+    //red square on bacteria to see it's position
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', 0, 0)';
+
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
 	
-	ctx.fillStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
-    (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
-	ctx.rect(x,y,3,3);
-	ctx.fillRect(x, y, 3, 3);
-    ctx.stroke();
-	/*ctx.beginPath();
-	ctx.strokeStyle = 'black';
+    ctx.fillStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
+      (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
+    ctx.rect(x,y,3,3);
+    ctx.fillRect(x, y, 3, 3);
+      ctx.stroke();
+    /*ctx.beginPath();
+    ctx.strokeStyle = 'black';
     ctx.rect(x-2, y-2, 4, 4);
     ctx.stroke();*/
   }
