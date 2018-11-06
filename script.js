@@ -9,9 +9,9 @@ window.onload = function () {
 
   var init = {
     nrBacteria: 32,
-	nrNutrition: 5000
+	  nrNutrition: 5000
   }
-  var probabilities = [];
+  //var probabilities = [];
 
   var ctx;
   var canvas = document.getElementById('viewport');
@@ -19,18 +19,19 @@ window.onload = function () {
   ctx.canvas.width = config.view.width;
   ctx.canvas.height = config.view.height;
   //ctx.fillStyle = 'rgb(90,40,40)';
+  // canvas background color
   ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  var consumedEnergy = 0.05;
-  var divisionEnergy = 100;
+  var consumedEnergy = 0.5;
+  var initialEnergy = 128;
   var nutrition = [];
   var bacterium = [];
   var bacteriumInit = [];
-  var directions =[	{x:0,y:-1},
-					{x:1,y:0},
-					{x:0,y:1},
-					{x:-1,y:0} ];
+  var directions = [	{x:0,y:-1}, //up
+                      {x:1,y:0}, //right
+                      {x:0,y:1}, //down
+                      {x:-1,y:0} ]; //left
 					
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
@@ -38,36 +39,37 @@ window.onload = function () {
     var yRand = Math.floor(Math.random() * canvas.height);
 
     var b = {
-      x: i==0? canvas.width/2 : xRand,
-      y: i==0? canvas.height/2 : yRand,
+      x: xRand,
+      y: yRand,
       p: [], // probabilities in which direction to go
-      energy: divisionEnergy - 10,
+      energy: initialEnergy,
       //energy: Math.floor(Math.random() * 255 + 1 ),
-	  p1: i==0? 0.8 : Math.random(),
-	  p2: i==0? 0.8 : Math.random(),
-	  p3: i==0? 0.8 : Math.random(),
-	  p4: i==0? 0 : Math.random(),
-      nr: i,
-	  age: 0,
-	  collectedFood: 0
+      p1: Math.random(), //probability to go up
+      p2: Math.random(), //probability to go right
+      p3: Math.random(),
+      p4: Math.random(),
+      nr: i, // identificator of each bacteria
+      age: 0,
+      collectedFood: 0
     };
 
     b.p.push(b.p1);
     b.p.push(b.p2);
     b.p.push(b.p3);
     b.p.push(b.p4);
-	b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+	  b.sum = b.p1 + b.p2 + b.p3 + b.p4;
     bacterium.push(b);
 
     drawBacteria(ctx, i, b.x, b.y);
   }
 
-  bacteriumInit = new Array();
+  bacteriumInit = new Array(); // I use bacteriumInit to see the initialEnergy when all bacteria is dead
   for(var x=0;x<bacterium.length;x++){
     bacteriumInit[x] = bacterium[x];
     bacteriumInit[x].initialEnergy = bacterium[x].energy;
   }
 
+    // draw nutrition (green color)
   for (var a = 0; a < init.nrNutrition; a++) {
     var nutritionX = Math.floor(Math.random() * canvas.width);
     var nutritionY = Math.floor(Math.random() * canvas.height);
@@ -76,7 +78,7 @@ window.onload = function () {
       x: nutritionX,
       y: nutritionY,
       //val: Math.random() * 5
-	  val: 1
+	    val: 1
     }
     nutrition.push(n);
 
@@ -98,7 +100,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 0);
+      interval = setInterval(redrawBacteria, 0.5);
     } else {
       clearInterval(interval);
       interval = null;
@@ -109,7 +111,8 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',0, 0)';
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',' +
+             (255 - bacterium[ind].energy) + ', ' + (255 - bacterium[ind].energy) + ')';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
 	
@@ -128,27 +131,25 @@ window.onload = function () {
   
   function redrawBacteria() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'rgb(234,208,168)';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	
+    //background color
+    ctx.fillStyle = 'rgb(234,208,168)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
     ctx.beginPath();
     ctx.globalAlpha = 1;
 	
-	 time++;
+    time++; // = age
+    
     for (var i = 0; i < bacterium.length; i++) {
-	  
 	  var bact=bacterium[i];
 	  
-	 
-	  
-	  
-	  //console.log("length:",bacterium.length);
-	  
 	  if (bact.energy <= 0) {
-        //clear bacteria
+      //clear bacteria
 		  bact.age = time;
 		  console.log("bact with nr " + bact.nr + " dies at age " + bact.age); 
           bacterium.splice(i, 1);
+
+      //last(winner) bacteria
 		   if(bacterium.length === 1){
 				console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
 				ctx.beginPath();
@@ -157,13 +158,15 @@ window.onload = function () {
 				ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
 				autoButton.click();
       }
-		  continue;
-          //console.log("removed, array:", bacterium);
+		    continue;
       }
 
+    
 	  var dirProbability = Math.random() * bact.sum;
-      var nr = 0, directionId = [];
-	  
+    //var nr = 0, 
+    var directionId = [];
+    
+    //recalculate direction of all bacteria in each epoch with discussed method
 	  var v = 0;
 	  for(var j=0;j<=3;j++)
 	  {
@@ -175,31 +178,35 @@ window.onload = function () {
 		  }
 	  }
 	  
-		  var dir = directions[directionId[i]];
+      var dir = directions[directionId[i]];
+      
+      //check if bacteria is at the edge of the canvas
 		  if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
 			  bact.x += dir.x;
 			  bact.y += dir.y;
 			  bact.energy -= consumedEnergy;
-        } else {
+      } else {
 			  bact.energy -= consumedEnergy;
 		}
-		
+    
+    //check if bacteria reached maximum energy level
+    //if yes => divide
 		var newBact = divide( bact );
-		if(newBact != null){
+		/*if(newBact != null){
 		  //console.log("new bact:", newBact);
-		}
+		}*/
 
       drawBacteria(ctx, i, bact.x, bact.y);
-	  
+    
+    //check if bacteria touched any nutrition
 	  for(var z=0;z<nutrition.length;z++){
-			nutrition[z] = checkForCollision(bact,nutrition[z]);
-		}
+			nutrition[z] = checkForCollision(bact,nutrition[z]); 
+		  }
 
-     
-	  
-	  
     }
 
+    //redraw nutrition
+    //if nutrition is eated => nutrition color = red
     for (a = 0; a < init.nrNutrition; a++) {
 		//if(nutrition[a].val != 0){
 			drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val);
@@ -209,17 +216,16 @@ window.onload = function () {
 
   function drawNutrition(ctx, x, y, v) {
     ctx.beginPath();
-
-    ctx.strokeStyle =v!=0?"green":"red";
+    ctx.strokeStyle= v!=0?"green":"red";
     ctx.rect(x, y, 1, 1);
     ctx.stroke();
   }
 
-  function roll() {
+  /*function roll() {
     return Math.floor(Math.random() * 500 + 1);
-  }
+  }*/
 
-  function chooseNumbers() {
+  /*function chooseNumbers() {
     var a = 0, b = 0, c = 0, d = 0;
 
     //while (a + b + c + d !== 1000) {
@@ -229,22 +235,22 @@ window.onload = function () {
       d = 1000 - (a+b+c);
     //}
     return [a, b, c, d];
-  }
+  }*/
   
 	function checkForCollision(bact,nutr){
-		
-			if(Math.abs(bact.x - nutr.x)<=2 && Math.abs(bact.y - nutr.y)<=2){
-				bact.energy += nutr.val;
-				//console.log("bact" + bact.nr + "eats " + nutrition.val + "kcal");
+		// I use the full size of each bacteria
+			if(Math.abs(bact.x - nutr.x)<=3 && Math.abs(bact.y - nutr.y)<=3){ 
+        bact.energy += nutr.val;
+        bact.collectedFood++;
+				//console.log("bact" + bact.nr + "gets " + nutrition.val + "energy");
 				nutr.val = 0;
 			}
 		return nutr;
 	}
 	
 	function divide(bact){
-		
-		if(bact.energy >= divisionEnergy) {
-			
+		//if max energy => divide/create new bacteria
+		if(bact.energy >= divisionEnergy) {	
 			console.log("bacteria with nr " + bact.nr + " divided");
 			var b = {
 			  x: bact.x,
