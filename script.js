@@ -11,7 +11,7 @@ window.onload = function () {
     nrBacteria: 32,
 	  nrNutrition: 5000
   }
-  var probabilities = [];
+  //var probabilities = [];
 
   var ctx;
   var canvas = document.getElementById('viewport');
@@ -111,7 +111,8 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',0,0)';
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',' +
+             (255 - bacterium[ind].energy) + ', ' + (255 - bacterium[ind].energy) + ')';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
 	
@@ -162,7 +163,7 @@ window.onload = function () {
 
     
 	  var dirProbability = Math.random() * bact.sum;
-    var nr = 0;
+    //var nr = 0, 
     var directionId = [];
     
     //recalculate direction of all bacteria in each epoch with discussed method
@@ -238,7 +239,7 @@ window.onload = function () {
   
 	function checkForCollision(bact,nutr){
 		// I use the full size of each bacteria
-			if(Math.abs(bact.x - nutr.x)<=2 && Math.abs(bact.y - nutr.y)<=2){ 
+			if(Math.abs(bact.x - nutr.x)<=3 && Math.abs(bact.y - nutr.y)<=3){ 
         bact.energy += nutr.val;
         bact.collectedFood++;
 				//console.log("bact" + bact.nr + "gets " + nutrition.val + "energy");
@@ -249,7 +250,7 @@ window.onload = function () {
 	
 	function divide(bact){
 		//if max energy => divide/create new bacteria
-		if(bact.energy >= divisionEnergy) {	
+		if(bact.energy >= 255) {	
 			console.log("bacteria with nr " + bact.nr + " divided");
 			var b = {
 			  x: bact.x,
