@@ -1,5 +1,5 @@
 window.onload = function () {
-  var drawOptions = {};
+  //var drawOptions = {};
   var config = {
     view: {
       width: 1024.0,
@@ -11,7 +11,7 @@ window.onload = function () {
     nrBacteria: 32,
 	  nrNutrition: 5000
   }
-  //var probabilities = [];
+  var probabilities = [];
 
   var ctx;
   var canvas = document.getElementById('viewport');
@@ -100,7 +100,7 @@ window.onload = function () {
     autoplay = !autoplay;
 
     if (autoplay === true) {
-      interval = setInterval(redrawBacteria, 0.5);
+      interval = setInterval(redrawBacteria, 10);
     } else {
       clearInterval(interval);
       interval = null;
@@ -111,8 +111,7 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',' +
-             (255 - bacterium[ind].energy) + ', ' + (255 - bacterium[ind].energy) + ')';
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ',0,0)';
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
 	
