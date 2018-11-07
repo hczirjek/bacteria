@@ -113,7 +113,8 @@ window.onload = function () {
     //ctx.strokeStyle = "black";
 
     //red square on bacteria to see it's position
-    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', 0, 0)';
+    ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
+      (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')'; //'rgb(' + (255 - bacterium[ind].energy) + ', 0, 0)';
 
     //ctx.font = "5px Arial";
     //ctx.fillText("bact" + ind,x-7.5,y-2);
