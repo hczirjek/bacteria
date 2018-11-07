@@ -23,7 +23,7 @@ window.onload = function () {
   ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  var consumedEnergy = 0.05;
+  var consumedEnergy = 0.2;
   var initialEnergy = 128;
   var nutrition = [];
   var bacterium = [];
@@ -78,7 +78,7 @@ window.onload = function () {
       x: nutritionX,
       y: nutritionY,
       //val: Math.random() * 5
-	    val: 1
+	val: 40
     }
     nutrition.push(n);
 
