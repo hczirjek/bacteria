@@ -133,7 +133,7 @@ window.onload = function () {
     ctx.rect(x,y,3,3);
     ctx.fillRect(x, y, 3, 3);
 	
-	document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + (bacterium[ind].energy)toPrecision(3) + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
+	document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + (Math.round((bacterium[ind].energy) * 100) / 100) + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
 	
 	}
 	catch(err) {
