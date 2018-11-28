@@ -116,7 +116,7 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-
+try {
     //red square on bacteria to see it's position
     //ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', 0, 0)';
     ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
@@ -129,6 +129,11 @@ window.onload = function () {
       (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
     ctx.rect(x,y,3,3);
     ctx.fillRect(x, y, 3, 3);
+    } 
+catch(err) {
+		console.log("Warning : ", err.message);
+	}
+	  
       ctx.stroke();
   }
   
