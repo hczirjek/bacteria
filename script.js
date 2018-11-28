@@ -10,6 +10,8 @@ window.onload = function () {
     nrBacteria: 32,
 	  nrNutrition: 3000
   }
+  
+  var bactInfo = document.getElementById('bactInfo');
 
   //declare all variables globally
   var consumedEnergy = 0.05;
@@ -36,6 +38,7 @@ window.onload = function () {
   ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 					
+	document.getElementById("bactInfo").innerHTML = "";
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
     var xRand = Math.floor(Math.random() * canvas.width);
@@ -116,7 +119,7 @@ window.onload = function () {
   function drawBacteria(ctx, ind, x, y) {
     ctx.beginPath();
     //ctx.strokeStyle = "black";
-try {
+	try {
     //red square on bacteria to see it's position
     //ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', 0, 0)';
     ctx.strokeStyle = 'rgb(' + (255 - bacterium[ind].energy) + ', ' +
@@ -129,17 +132,21 @@ try {
       (255 - bacterium[ind].energy) + ',' + (255 - bacterium[ind].energy) + ')';
     ctx.rect(x,y,3,3);
     ctx.fillRect(x, y, 3, 3);
-    } 
-catch(err) {
-		console.log("Warning : ", err.message);
+	
+	document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + bacterium[ind].energy + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
+	
 	}
-	  
+	catch(err) {
+		console.log("Warning: ", err.message);
+	}
       ctx.stroke();
   }
   
   function redrawBacteria() {
 
     nrOfEpoch++;
+	
+	document.getElementById("bactInfo").innerHTML = "";
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //background color
@@ -153,7 +160,8 @@ catch(err) {
     
     for (var i = 0; i < bacterium.length; i++) {
     var bact=bacterium[i];
-	  
+	bact.age = time;
+	
 	  if (bact.energy <= 0) {
       //clear bacteria
 		  bact.age = time;
