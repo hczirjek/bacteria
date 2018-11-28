@@ -13,6 +13,7 @@ window.onload = function () {
   
   var bactInfo = document.getElementById('bactInfo');
 
+  var informationArr = [];
   //declare all variables globally
   var consumedEnergy = 0.05;
   var initialEnergy = 128;
@@ -133,7 +134,8 @@ window.onload = function () {
     ctx.rect(x,y,3,3);
     ctx.fillRect(x, y, 3, 3);
 	
-	document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + (Math.round((bacterium[ind].energy) * 100) / 100) + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
+	informationArr[ind] = "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + (Math.round((bacterium[ind].energy) * 100) / 100) + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood;
+	//document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + bacterium[ind].energy + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
 	
 	}
 	catch(err) {
@@ -146,7 +148,7 @@ window.onload = function () {
 
     nrOfEpoch++;
 	
-	document.getElementById("bactInfo").innerHTML = "";
+	//document.getElementById("bactInfo").innerHTML = "";
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //background color
@@ -159,71 +161,74 @@ window.onload = function () {
     time++; // = age
     
     for (var i = 0; i < bacterium.length; i++) {
-    var bact=bacterium[i];
-	bact.age = time;
-	
-	  if (bact.energy <= 0) {
-      //clear bacteria
-		  bact.age = time;
-		  console.log("bact with nr " + bact.nr + " dies at age " + bact.age); 
-          bacterium.splice(i, 1);
-      }
+		var bact=bacterium[i];
+		bact.age = time;
+		
+		  if (bact.energy <= 0) {
+		  //clear bacteria
+			  bact.age = time;
+			  console.log("bact with nr " + bact.nr + " dies at age " + bact.age); 
+			  bacterium.splice(i, 1);
+		  }
 
-      //last(winner) bacteria
-		   if(bacterium.length === 1){
-        //console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
-        console.log("last bacteria's attributes: ", bacterium[0]);
-				ctx.beginPath();
-				ctx.fillStyle = "yellow";
-				ctx.font = "15px Arial";
-				ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
-        autoButton.click();
-        continue;
-      }
-    
-	  var dirProbability = Math.random() * bact.sum;
-    //var nr = 0, 
-    var directionId = [];
-    
-    //recalculate direction of all bacteria in each epoch with discussed method
-	  var v = 0;
-	  for(var j=0;j<=3;j++)
-	  {
-		  v += bact.p[j];
-		  if(dirProbability<=v)
+		  //last(winner) bacteria
+		if(bacterium.length === 1){
+			//console.log("last bacteria's attributes: ", bacteriumInit[bacterium[0].nr]);
+			console.log("last bacteria's attributes: ", bacterium[0]);
+					ctx.beginPath();
+					ctx.fillStyle = "yellow";
+					ctx.font = "15px Arial";
+					ctx.fillText("WINNER",bacterium[0].x - 8,bacterium[0].y + 5);
+			autoButton.click();
+			continue;
+		  }
+		
+		var dirProbability = Math.random() * bact.sum;
+		//var nr = 0, 
+		var directionId = [];
+		
+		//recalculate direction of all bacteria in each epoch with discussed method
+		  var v = 0;
+		  for(var j=0;j<=3;j++)
 		  {
-			  directionId[i] = j;
-			  break;
+			  v += bact.p[j];
+			  if(dirProbability<=v)
+			  {
+				  directionId[i] = j;
+				  break;
+			  }
 		  }
-	  }
-	  
-      var dir = directions[directionId[i]];
-      
-      //check if bacteria is at the edge of the canvas
-		  if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
-			  bact.x += dir.x;
-			  bact.y += dir.y;
-			  bact.energy -= consumedEnergy;
-      } else {
-			  bact.energy -= consumedEnergy;
-		}
-    
-    drawBacteria(ctx, i, bact.x, bact.y);
-    
-    //check if bacteria reached maximum energy level
-    //if yes => divide
+		  
+		  var dir = directions[directionId[i]];
+		  
+		  //check if bacteria is at the edge of the canvas
+			if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
+				  bact.x += dir.x;
+				  bact.y += dir.y;
+				  bact.energy -= consumedEnergy;
+			} else {
+				  bact.energy -= consumedEnergy;
+			}
+		
+		drawBacteria(ctx, i, bact.x, bact.y);
+		
+		//check if bacteria reached maximum energy level
+		//if yes => divide
 		var newBact = divide( bact );
-		/*if(newBact != null){
-		  //console.log("new bact:", newBact);
-		}*/
-    
-    //check if bacteria touched any nutrition
-	  for(var z=0;z<nutrition.length;z++){
+			/*if(newBact != null){
+			  //console.log("new bact:", newBact);
+			}*/
+		
+		//check if bacteria touched any nutrition
+		 for(var z=0;z<nutrition.length;z++){
 			nutrition[z] = checkForCollision(bact,nutrition[z]); 
-		  }
+		 }
 
-    }
+    } //END OF FOR
 
+	bactInfo.innerHTML = informationArr.join("<br/>");
+	
+	
     //redraw nutrition
     //if nutrition is eated => nutrition color = red
     for (a = 0; a < nutrition.length; a++) {
@@ -239,6 +244,7 @@ window.onload = function () {
 			  drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val, nrOfEpoch);
 		  }
     }
+	
   }
 
   function drawNutrition(ctx, x, y, v, nrOfEpoch) {
@@ -250,18 +256,19 @@ window.onload = function () {
   }
   
 	function checkForCollision(bact,nutr){
-			if(Math.abs(bact.x - nutr.x)<=1 && Math.abs(bact.y - nutr.y)<=1){ 
-        bact.energy += nutr.val;
-        nutr.val = 0;
-        bact.collectedFood++;
-				//console.log("bact" + bact.nr + "gets " + nutrition.val + "energy");
-			}
+		if(Math.abs(bact.x - nutr.x)<=1 && Math.abs(bact.y - nutr.y)<=1){ 
+			bact.energy += nutr.val;
+			nutr.val = 0;
+			bact.collectedFood++;
+					//console.log("bact" + bact.nr + "gets " + nutrition.val + "energy");
+		}
+		
 		return nutr;
 	}
 	
 	function divide(bact){
 		//if max energy => divide/create new bacteria
-		if(bact.energy >= 255) {	
+	if(bact.energy >= 255) {	
       console.log("bacteria with nr " + bact.nr + " divided");
       
       //new bacteria
@@ -291,8 +298,8 @@ window.onload = function () {
 
 			//console.log("New bact: " + bacterium[bacterium.length] );
 			return b;
-		}
 	}
+}
 
 
 }
