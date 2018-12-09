@@ -10,8 +10,6 @@ window.onload = function () {
     nrBacteria: 32,
 	  nrNutrition: 3000
   }
-  
-  var bactInfo = document.getElementById('bactInfo');
 
   var informationArr = [];
   //declare all variables globally
@@ -29,6 +27,8 @@ window.onload = function () {
   var time = 0; // = age
   var nrOfEpoch = 0;
 
+  var bactInfo = this.document.getElementById("textbox");
+
   var ctx;
   var canvas = document.getElementById('viewport');
   ctx = canvas.getContext('2d');
@@ -39,7 +39,6 @@ window.onload = function () {
   ctx.fillStyle = 'rgb(234,208,168)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 					
-	document.getElementById("bactInfo").innerHTML = "";
   //draw initial bacteria
   for (var i = 0; i < init.nrBacteria; i++) {
     var xRand = Math.floor(Math.random() * canvas.width);
@@ -58,14 +57,28 @@ window.onload = function () {
       p4: Math.random(),
       nr: i, // identificator of each bacteria
       age: 0,
-      collectedFood: 0
+      collectedFood: 0,
+      childrenID: [],
+      currentDir: "",
+      mostLikelyDir: ""
     };
 
     b.p.push(b.p1);
     b.p.push(b.p2);
     b.p.push(b.p3);
     b.p.push(b.p4);
-	  b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+    b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+    var max = Math.max(b.p1,b.p2,b.p3,b.p4);
+    if(max == b.p1){
+      b.mostLikelyDir = "up";
+    } else if(max == b.p2){
+      b.mostLikelyDir = "right";
+    } else if(max == b.p3){
+      b.mostLikelyDir = "left";
+    } else if(max == b.p4){
+      b.mostLikelyDir = "down";
+    }
+
     bacterium.push(b);
 
     drawBacteria(ctx, i, b.x, b.y);
@@ -134,7 +147,14 @@ window.onload = function () {
     ctx.rect(x,y,3,3);
     ctx.fillRect(x, y, 3, 3);
 	
-	informationArr[ind] = "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + (Math.round((bacterium[ind].energy) * 100) / 100) + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood;
+  informationArr[ind] = "Bacteria: Nr " + bacterium[ind].nr +
+  "\n TendencyProp: " + bacterium[ind].p + 
+  "\n Current Direction: " + bacterium[ind].currentDir + 
+  "\n Most Likely Direction: " + bacterium[ind].mostLikelyDir + 
+   "\n Energy: " + (Math.round((bacterium[ind].energy) * 100) / 100) +
+    "\n Age: " + bacterium[ind].age +
+     "\n Collected food: " + bacterium[ind].collectedFood +
+      "\n Children(ID): " + bacterium[ind].childrenID + '\n';
 	//document.getElementById("bactInfo").innerHTML += "Bacteria: Nr " + bacterium[ind].nr + ", Energy: " + bacterium[ind].energy + ", Age: " + bacterium[ind].age + ", Collected food: " + bacterium[ind].collectedFood + "<br />";
 	
 	}
@@ -158,15 +178,14 @@ window.onload = function () {
     ctx.beginPath();
     ctx.globalAlpha = 1;
 	
-    time++; // = age
+    //time++; // = age
     
     for (var i = 0; i < bacterium.length; i++) {
 		var bact=bacterium[i];
-		bact.age = time;
+		bact.age++;
 		
 		  if (bact.energy <= 0) {
 		  //clear bacteria
-			  bact.age = time;
 			  console.log("bact with nr " + bact.nr + " dies at age " + bact.age); 
 			  bacterium.splice(i, 1);
 		  }
@@ -194,12 +213,21 @@ window.onload = function () {
 			  v += bact.p[j];
 			  if(dirProbability<=v)
 			  {
-				  directionId[i] = j;
+          directionId[i] = j;
 				  break;
 			  }
 		  }
 		  
-		  var dir = directions[directionId[i]];
+      var dir = directions[directionId[i]];
+      if(directionId[i] == 0){
+      bacterium[i].currentDir = "up";
+      } else if(directionId[i] == 1){
+        bacterium[i].currentDir = "right";
+        } else if(directionId[i] == 2){
+          bacterium[i].currentDir = "down";
+          } else if(directionId[i] == 3){
+            bacterium[i].currentDir = "left";
+            }
 		  
 		  //check if bacteria is at the edge of the canvas
 			if( ( (bact.x + dir.x < canvas.width) && (bact.x + dir.x > 0) ) && ( (bact.y + dir.y < canvas.height) && (bact.y + dir.y > 0) ) ){
@@ -226,21 +254,40 @@ window.onload = function () {
 
     } //END OF FOR
 
-	bactInfo.innerHTML = informationArr.join("<br/>");
-	
+	  bactInfo.innerHTML = informationArr.join("\n");
 	
     //redraw nutrition
     //if nutrition is eated => nutrition color = red
+    if(nrOfEpoch>=250){
     for (a = 0; a < nutrition.length; a++) {
-      if(nrOfEpoch>=100){
         nutrition.forEach(nutr => {
           if(nutr.val == 0){
             nutrition.splice(nutrition.indexOf(nutr), 1);
           }
         });
+      
         nrOfEpoch = 0; //reset nr of epoch
         drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val, nrOfEpoch);
-      } else {
+      }
+
+      //add new nutrition
+    for (var a2 = 0; a2 < 50; a2++) {
+      var nutritionX = Math.floor(Math.random() * canvas.width);
+      var nutritionY = Math.floor(Math.random() * canvas.height);
+
+    //nutrition
+    var n = {
+      x: nutritionX,
+      y: nutritionY,
+      //val: Math.random() * 5
+	    val: 40
+    }
+    nutrition.push(n);
+    drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val, nrOfEpoch);
+    }
+
+    } else {
+      for (a = 0; a < nutrition.length; a++) {
 			  drawNutrition(ctx, nutrition[a].x, nutrition[a].y, nutrition[a].val, nrOfEpoch);
 		  }
     }
@@ -257,11 +304,13 @@ window.onload = function () {
   
 	function checkForCollision(bact,nutr){
 		if(Math.abs(bact.x - nutr.x)<=1 && Math.abs(bact.y - nutr.y)<=1){ 
+      if(nutr.val != 0){
 			bact.energy += nutr.val;
 			nutr.val = 0;
 			bact.collectedFood++;
 					//console.log("bact" + bact.nr + "gets " + nutrition.val + "energy");
-		}
+      }
+    }
 		
 		return nutr;
 	}
@@ -283,23 +332,65 @@ window.onload = function () {
 			  p4: Math.random(),
 			  nr: bacterium.length,
 			  age: 0,
-			  collectedFood: 0
+        collectedFood: 0,
+        childrenID: [],
+        currentDir: "",
+        mostLikelyDir: ""
 			};
 
 			b.p.push(b.p1);
 			b.p.push(b.p2);
 			b.p.push(b.p3);
 			b.p.push(b.p4);
-			b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+      b.sum = b.p1 + b.p2 + b.p3 + b.p4;
+      var max = Math.max(b.p1,b.p2,b.p3,b.p4);
+      if(max == b.p1){
+        b.mostLikelyDir = "up";
+      } else if(max == b.p2){
+        b.mostLikelyDir = "right";
+      } else if(max == b.p3){
+        b.mostLikelyDir = "left";
+      } else if(max == b.p4){
+        b.mostLikelyDir = "down";
+      }
+
 			bacterium.push(b);
       
       //parent bact energy reset
       bact.energy = bact.energy / 2;
+      bact.childrenID.push(b.nr);
 
 			//console.log("New bact: " + bacterium[bacterium.length] );
 			return b;
 	}
 }
 
+//Save Bacteria information to File
+(function () {
+  var textFile = null,
+    makeTextFile = function (text) {
+      var data = new Blob([text], {type: 'text/plain'});
+  
+      // If we are replacing a previously generated file we need to
+      // manually revoke the object URL to avoid memory leaks.
+      if (textFile !== null) {
+        window.URL.revokeObjectURL(textFile);
+      }
+  
+      textFile = window.URL.createObjectURL(data);
+  
+      return textFile;
+    };
+  
+  
+    var create = document.getElementById('create'),
+      textbox = document.getElementById('textbox');
+  
+    create.addEventListener('click', function () {
+      var link = document.getElementById('downloadlink');
+      link.href = makeTextFile(textbox.value);
+      link.style.display = 'block';
+    }, false);
+  })();
 
 }
